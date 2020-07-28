@@ -1,20 +1,22 @@
 import "reflect-metadata";
+import { config } from "dotenv";
 import { ApolloServer } from "apollo-server-express";
 import { createConnection } from "typeorm";
 import { buildSchema } from "type-graphql";
 import * as express from "express";
-
-import { User } from "./entity/User";
 import { UserResolver } from "./UserResolver";
 
+config();
+const app = express();
+const PORT = process.env.PORT || 4400;
+const dbName = require("../ormconfig.json").database;
+
 (async () => {
-  const app = express();
-
-  app.get("/", (_, res) => {
-    res.send("Hello world!");
-  });
-
+  // DB connection(It's set to mongodb in ormconfig file)
   await createConnection();
+  console.log(`Connected! Database connection name: ${dbName}`);
+
+  // Create Apollo Server connection
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
       resolvers: [UserResolver],
@@ -31,9 +33,9 @@ import { UserResolver } from "./UserResolver";
     // },
   });
 
+  // Connect apolloServer with app
   apolloServer.applyMiddleware({ app });
-
-  app.listen(4000, () => console.log("Listening on port 4000"));
+  app.listen(PORT, () => console.log(`Listening on port ${PORT}`));
 })();
 
 // createConnection()
