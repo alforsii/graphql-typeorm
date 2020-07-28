@@ -1,17 +1,16 @@
+import "dotenv/config";
 import "reflect-metadata";
-import { config } from "dotenv";
-import { ApolloServer } from "apollo-server-express";
+import express from "express";
 import { createConnection } from "typeorm";
 import { buildSchema } from "type-graphql";
-import * as express from "express";
+import { ApolloServer } from "apollo-server-express";
 import { UserResolver } from "./UserResolver";
 
-config();
-const app = express();
 const PORT = process.env.PORT || 4400;
 const dbName = require("../ormconfig.json").database;
 
 (async () => {
+  const app = express();
   // DB connection(It's set to mongodb in ormconfig file)
   await createConnection();
   console.log(`Connected! Database connection name: ${dbName}`);
@@ -21,6 +20,7 @@ const dbName = require("../ormconfig.json").database;
     schema: await buildSchema({
       resolvers: [UserResolver],
     }),
+    context: ({ req, res }) => ({ req, res }),
     // typeDefs: `
     //   type Query {
     //       hello: String!
