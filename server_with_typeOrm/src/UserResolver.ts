@@ -12,8 +12,9 @@ import { hash, compare } from "bcryptjs";
 
 import { User } from "./entity/User";
 import { MyContext } from "./MyContext";
-import { createRefreshToken, createAccessToken } from "./configs/authTokens";
+import { sendRefreshToken, createAccessToken } from "./configs/authTokens";
 import { isAuth } from "./configs/isAuth";
+import { getManager } from "typeorm";
 
 @ObjectType()
 class LoginResponse {
@@ -23,11 +24,6 @@ class LoginResponse {
 
 @Resolver()
 export class UserResolver {
-  @Query(() => String)
-  hello() {
-    return "hi";
-  }
-
   // GET USERS
   @Query(() => [User])
   users() {
@@ -41,6 +37,17 @@ export class UserResolver {
     return `UserId ${payload!.userId} Authorized!`;
   }
 
+  // // This .increment({ id: userId }, "tokenVersion", 1) is not supported in mongoDB with typeOrm
+  // @Mutation(() => Boolean)
+  // async revokeRefreshTokenForUser(@Arg("userId", () => String) userId: string) {
+  //   console.log("revokeRefreshTokenForUser -> userId", userId);
+  //   // const user = await User.findOne(userId);
+  //   const user = await getManager()
+  //     .getRepository(User)
+  //     .increment({ id: userId }, "tokenVersion", 1);
+  //   console.log("Updated!", user);
+  //   return true;
+  // }
   // SIGNUP
   @Mutation(() => Boolean)
   async signup(@Arg("email") email: string, @Arg("password") password: string) {
@@ -49,6 +56,7 @@ export class UserResolver {
       await User.insert({
         email,
         password: hashedPassword,
+        tokenVersion: 0,
       });
       return true;
     } catch (err) {
@@ -77,7 +85,7 @@ export class UserResolver {
     // => login successful
 
     // set cookie
-    res.cookie("ashash", createRefreshToken(user), { httpOnly: true });
+    sendRefreshToken(res, user);
 
     // send accessToken
     return {
