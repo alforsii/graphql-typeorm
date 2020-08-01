@@ -1,12 +1,11 @@
-import { MiddlewareFn } from "type-graphql";
 import jwt from "jsonwebtoken";
-import { MyContext } from "../MyContext";
+import { MiddlewareFn } from "type-graphql";
+import { MyContext } from "./MyContext";
 
 // Bearer alshdlskhdkllkshjdf
 
 export const isAuth: MiddlewareFn<MyContext> = ({ context }, next) => {
   const authorization = context.req.headers["authorization"];
-  console.log("authorization", authorization);
 
   if (!authorization) {
     console.log("err");

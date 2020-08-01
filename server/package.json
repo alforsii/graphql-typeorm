@@ -10,6 +10,7 @@
     "@types/graphql": "^14.5.0",
     "@types/jsonwebtoken": "^8.5.0",
     "@types/mongoose": "^5.7.34",
+    "@types/morgan": "^1.9.1",
     "@types/node": "^14.0.26",
     "ts-node": "8.10.2",
     "typescript": "3.9.7"
@@ -26,6 +27,7 @@
     "jsonwebtoken": "^8.5.1",
     "mongodb": "^3.5.9",
     "mongoose": "^5.9.26",
+    "morgan": "^1.10.0",
     "reflect-metadata": "^0.1.13",
     "type-graphql": "^1.0.0-rc.3"
   },
