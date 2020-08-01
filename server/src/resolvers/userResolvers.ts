@@ -13,7 +13,7 @@ import { hash, compare } from "bcryptjs";
 import User, { UserFields } from "../entity/User.model";
 import { MyContext } from "../configs/MyContext";
 import { sendRefreshToken, createAccessToken } from "../configs/authTokens";
-import { isAuth } from "../configs/isAuth";
+import { isAuthenticated } from "../configs/isAuthenticated";
 
 @ObjectType()
 class LoginResponse {
@@ -30,7 +30,7 @@ export class UserResolver {
   }
 
   @Query(() => String)
-  @UseMiddleware(isAuth)
+  @UseMiddleware(isAuthenticated)
   testIsAuth(@Ctx() { payload }: MyContext) {
     return `UserId ${payload!.userId} Authorized!`;
   }

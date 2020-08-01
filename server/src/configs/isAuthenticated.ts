@@ -4,7 +4,7 @@ import { MyContext } from "./MyContext";
 
 // Bearer alshdlskhdkllkshjdf
 
-export const isAuth: MiddlewareFn<MyContext> = ({ context }, next) => {
+export const isAuthenticated: MiddlewareFn<MyContext> = ({ context }, next) => {
   const authorization = context.req.headers["authorization"];
 
   if (!authorization) {
