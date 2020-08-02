@@ -29,12 +29,13 @@ export const Auth_Server = async () => {
     }),
   });
 
+  // Connect apolloServer with app
   server.applyMiddleware({
     app,
     path: "/graphql",
+    cors: false,
   });
-  // Connect apolloServer with app
-  // apolloServer.applyMiddleware({ app });
+
   app.listen(PORT, () =>
     console.log(
       `🚀 Server ready at http://localhost:${PORT}${server.graphqlPath}`

@@ -1,14 +1,18 @@
 import express from "express";
 import jwt from "jsonwebtoken";
 import User from "../entity/User.model";
-import { createAccessToken, sendRefreshToken } from "../configs/authTokens";
+import {
+  createAccessToken,
+  sendRefreshToken,
+  createRefreshToken,
+} from "../configs/authTokens";
 
 const route = express.Router();
 
 route.post("/refresh_token", async (req, res) => {
   // res.send(req.headers);
   // res.send(req.cookies); // { "key": "value"}
-  const token = req.cookies.token;
+  const token = req.cookies.ashash;
 
   if (!token) {
     return res.send({
@@ -47,7 +51,7 @@ route.post("/refresh_token", async (req, res) => {
     });
   }
   // re set new refreshToken
-  sendRefreshToken(res, user);
+  sendRefreshToken(res, createRefreshToken(user));
   // send valid token
   return res.send({
     ok: true,

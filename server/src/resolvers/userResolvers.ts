@@ -12,7 +12,11 @@ import { hash, compare } from "bcryptjs";
 
 import User, { UserFields } from "../entity/User.model";
 import { MyContext } from "../configs/MyContext";
-import { sendRefreshToken, createAccessToken } from "../configs/authTokens";
+import {
+  sendRefreshToken,
+  createAccessToken,
+  createRefreshToken,
+} from "../configs/authTokens";
 import { isAuthenticated } from "../configs/isAuthenticated";
 
 @ObjectType()
@@ -78,11 +82,18 @@ export class UserResolver {
 
     // => login successful
     // set cookie
-    sendRefreshToken(res, user);
+    sendRefreshToken(res, createRefreshToken(user));
 
     // send accessToken
     return {
       accessToken: createAccessToken(user),
     };
+  }
+
+  // LOGOUT
+  @Mutation(() => Boolean)
+  async logout(@Ctx() { res }: MyContext) {
+    sendRefreshToken(res, "");
+    return true;
   }
 }

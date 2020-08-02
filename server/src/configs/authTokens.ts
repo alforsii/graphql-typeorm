@@ -26,8 +26,8 @@ export const createRefreshToken = (user: IUser) => {
   return refToken;
 };
 
-export const sendRefreshToken = (res: Response, user: IUser) => {
-  return res.cookie("ashash", createRefreshToken(user), {
+export const sendRefreshToken = (res: Response, token: string) => {
+  return res.cookie("ashash", token, {
     httpOnly: true,
     path: "/refresh_token",
   });
