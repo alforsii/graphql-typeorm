@@ -1,11 +1,11 @@
 import React from "react";
 import { useUsersQuery } from "../../generated/graphql";
 
-export default function Home() {
-  const GetUsers = () => {
-    const { loading, data } = useUsersQuery();
-    if (loading) return <div>Loading...</div>;
+interface Props {}
+export const Home: React.FC<Props> = () => {
+  const { data } = useUsersQuery();
 
+  const GetUsers = () => {
     return (
       <div>
         <ul>
@@ -21,4 +21,4 @@ export default function Home() {
     );
   };
   return <GetUsers />;
-}
+};

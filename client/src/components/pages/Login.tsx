@@ -3,8 +3,13 @@ import { useLoginMutation } from "../../generated/graphql";
 import { RouteComponentProps } from "react-router-dom";
 import { setAccessToken } from "../../auth/access";
 
-export const Login: React.FC<RouteComponentProps> = ({ history }) => {
+interface Props extends RouteComponentProps {
+  setToken: Function;
+}
+
+export const Login: React.FC<Props> = ({ history, setToken }) => {
   const [email, setEmail] = useState("");
+  const [msg, setMsg] = useState("");
   const [password, setPassword] = useState("");
   const [login] = useLoginMutation();
   useEffect(() => {
@@ -17,6 +22,9 @@ export const Login: React.FC<RouteComponentProps> = ({ history }) => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     console.log("form submitted");
+    if (!email) {
+      return setMsg("Please enter your email");
+    }
     const res = await login({
       variables: {
         email,
@@ -24,13 +32,17 @@ export const Login: React.FC<RouteComponentProps> = ({ history }) => {
       },
     });
     console.log(res);
-    if (res && res.data) {
+    if (res?.data?.login.ok) {
       setAccessToken(res.data.login.accessToken);
+      setToken(res.data.login.accessToken);
       history.push("/is_auth");
+    } else {
+      setMsg(res?.data?.login.message!);
     }
   };
   return (
     <form onSubmit={handleSubmit}>
+      <div> {msg} </div>
       <h2>Login</h2>
       <div>
         <input

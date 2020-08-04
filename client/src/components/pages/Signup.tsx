@@ -4,6 +4,7 @@ import { RouteComponentProps } from "react-router-dom";
 
 export const Signup: React.FC<RouteComponentProps> = ({ history }) => {
   const [email, setEmail] = useState("");
+  const [msg, setMsg] = useState("");
   const [password, setPassword] = useState("");
   const [signup] = useSignupMutation();
 
@@ -23,11 +24,16 @@ export const Signup: React.FC<RouteComponentProps> = ({ history }) => {
         password,
       },
     });
+    if (res.data?.signup.ok) {
+      history.push("/");
+    } else {
+      setMsg(res.data?.signup.message!);
+    }
     console.log(res);
-    history.push("/");
   };
   return (
     <form onSubmit={handleSubmit}>
+      <div> {msg} </div>
       <h2>Signup</h2>
       <div>
         <input

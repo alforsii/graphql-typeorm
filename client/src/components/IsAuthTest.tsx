@@ -1,34 +1,35 @@
 import React from "react";
-import { useTestIsAuthQuery, useLogoutMutation } from "../generated/graphql";
+import { useLogoutMutation, useLoggedUserQuery } from "../generated/graphql";
 import { RouteComponentProps } from "react-router-dom";
 import { setAccessToken } from "../auth/access";
 
-interface Props {}
+interface Props extends RouteComponentProps {
+  setToken: Function;
+}
 
-export const IsAuthTest: React.FC<RouteComponentProps> = ({ history }) => {
+export const IsAuthTest: React.FC<Props> = ({ history, setToken }) => {
+  const { data, loading, error, client } = useLoggedUserQuery();
+  console.log("data", data);
   const [logout] = useLogoutMutation();
 
-  const { data, loading, error } = useTestIsAuthQuery();
-  if (error)
-    return (
-      <div>
-        <pre>err</pre>
-      </div>
-    );
   if (loading) return <div>loading...</div>;
-  if (!data) return <div>no data</div>;
+  if (error) return <div>err</div>;
+  if (!data?.loggedUser) return <div>no data</div>;
+
   return (
     <div>
       <button
         onClick={async () => {
           await logout();
+          client.resetStore();
           setAccessToken("");
+          setToken("");
           history.push("/");
         }}
       >
         logout
       </button>
-      <pre> {data.testIsAuth} </pre>
+      <div>{data?.loggedUser?.email}</div>
     </div>
   );
 };

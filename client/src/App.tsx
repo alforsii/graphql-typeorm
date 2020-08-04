@@ -1,22 +1,20 @@
 import React, { useState, useEffect } from "react";
 import Routes from "./Routes";
 import { Navbar } from "./components/pages/Navbar";
-import { setAccessToken } from "./auth/access";
+import { renewAccessToken, accessToken } from "./auth/access";
 
 const App: React.FC = () => {
   const [loading, setLoading] = useState(true);
+  const [token, setToken] = useState("");
+
+  const update = async () => {
+    await renewAccessToken();
+    setToken(accessToken);
+    setLoading(false);
+  };
 
   useEffect(() => {
-    fetch("http://localhost:4000/refresh_token", {
-      method: "POST",
-      credentials: "include",
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        setAccessToken(data.accessToken);
-        console.log(data);
-        setLoading(false);
-      });
+    update();
   }, []);
 
   if (loading) return <div>loading...</div>;
@@ -24,7 +22,7 @@ const App: React.FC = () => {
   return (
     <div className="App">
       <Navbar />
-      <Routes />
+      <Routes token={token} setToken={setToken} />
     </div>
   );
 };
