@@ -9,6 +9,7 @@ import {
   UseMiddleware,
 } from "type-graphql";
 import { hash, compare } from "bcryptjs";
+import jwt from "jsonwebtoken";
 
 import User, { UserFields } from "../entity/User.model";
 import { MyContext } from "../configs/MyContext";
@@ -20,11 +21,17 @@ import {
 import { isAuthenticated } from "../configs/isAuthenticated";
 
 @ObjectType()
-class LoginResponse {
+class SignupResponse {
+  @Field()
+  ok: boolean;
+  @Field()
+  message?: string;
+}
+@ObjectType()
+class LoginResponse extends SignupResponse {
   @Field()
   accessToken: string;
 }
-
 @Resolver()
 export class UserResolver {
   // GET USERS
@@ -38,6 +45,11 @@ export class UserResolver {
   testIsAuth(@Ctx() { payload }: MyContext) {
     return `UserId ${payload!.userId} Authorized!`;
   }
+  @Query(() => UserFields, { nullable: true })
+  @UseMiddleware(isAuthenticated)
+  loggedUser(@Ctx() { payload }: MyContext) {
+    return User.findById(payload?.userId);
+  }
 
   @Mutation(() => Boolean)
   async revokeRefreshTokenForUser(@Arg("userId", () => String) userId: string) {
@@ -48,18 +60,34 @@ export class UserResolver {
     return true;
   }
   // SIGNUP
-  @Mutation(() => Boolean)
+  @Mutation(() => SignupResponse)
   async signup(@Arg("email") email: string, @Arg("password") password: string) {
+    const user = await User.findOne({ email });
+    console.log("signup ");
+
+    if (user) {
+      return {
+        ok: false,
+        message: "This email already registered!",
+      };
+    }
+
     try {
       const hashedPassword = await hash(password, 10);
       await User.create({
         email,
         password: hashedPassword,
       });
-      return true;
+      return {
+        ok: true,
+        message: "Signup successful!",
+      };
     } catch (err) {
       console.log("UserResolver -> signup -> err", err);
-      return false;
+      return {
+        ok: false,
+        message: err.message,
+      };
     }
   }
   // LOGIN
@@ -72,12 +100,20 @@ export class UserResolver {
     const user = await User.findOne({ email });
 
     if (!user) {
-      throw new Error("Could not find user");
+      return {
+        accessToken: "",
+        ok: false,
+        message: "This email is not registered!",
+      };
     }
 
     const validPassword = await compare(password, user.password);
     if (!validPassword) {
-      throw new Error("Invalid password!");
+      return {
+        accessToken: "",
+        ok: false,
+        message: "Invalid password!",
+      };
     }
 
     // => login successful
@@ -87,6 +123,8 @@ export class UserResolver {
     // send accessToken
     return {
       accessToken: createAccessToken(user),
+      ok: true,
+      message: "Login successful!",
     };
   }
 

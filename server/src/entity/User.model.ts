@@ -8,9 +8,6 @@ export class UserFields {
 
   @Field()
   email: string;
-
-  password: string;
-  tokenVersion: number;
 }
 
 // Whatever is inside interface all fields are required to pass
