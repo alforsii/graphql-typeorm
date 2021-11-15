@@ -24,6 +24,12 @@ yarn add @types/graphql -D
 yarn add -D @graphql-codegen/cli
 ```
 
+and
+
+```
+yarn graphql-codegen init
+```
+
 - Select setting codegen configs
   This will add in the package.json:
 
